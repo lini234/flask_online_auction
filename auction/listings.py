@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, session, url_for, redirect, flash, abort
-from .models import listings, Review, Bid, WatchListItem
+from .models import Listings, Review, Bid, WatchListItem
 from auction.forms import ListingForm, ReviewForm, BidForm
 from . import db
 from werkzeug.utils import secure_filename
@@ -13,7 +13,7 @@ listingbp = Blueprint('listing', __name__, url_prefix='/listings')
 
 @listingbp.route('/<id>')
 def showlisting(id):
-    listing = listings.query.filter_by(id=id).first()
+    listing = Listings.query.filter_by(id=id).first()
     review_form_instance = ReviewForm()
     bid_form_instance = BidForm()
 
@@ -31,7 +31,7 @@ def createlisting():
         db_file_path = check_upload_file(listingform)
 
         # Write data to database
-        listing = listings()
+        listing = Listings()
 
         listing.title = listingform.title.data
         listing.starting_bid = listingform.starting_bid.data
@@ -76,10 +76,10 @@ def check_upload_file(form):
 @listingbp.route('/mylistings', methods=['GET', 'POST'])
 @login_required
 def mylistings():
-    listings = listings.query.filter_by(seller=current_user.name).all()
+    listings = Listings.query.filter_by(seller=current_user.name).all()
 
     # Retrieve count of user listings
-    myListingsCount = listings.query.filter_by(seller=current_user.name).count()
+    myListingsCount = Listings.query.filter_by(seller=current_user.name).count()
 
     return render_template('listings/mylistings.html', listings=listings,
                            mylistingscount="({0})".format(myListingsCount))
@@ -88,7 +88,7 @@ def mylistings():
 @listingbp.route('/mylistings/<listing>/close', methods=['GET', 'POST'])
 def close_listing(listing):
     # Retrive Listing Object and Bid List
-    update_listing = listings.query.filter_by(id=listing).first()
+    update_listing = Listings.query.filter_by(id=listing).first()
 
     # Update status to closed
     update_listing.status = 'Closed'
@@ -101,7 +101,7 @@ def close_listing(listing):
     db.session.commit()
 
     # Re-render page with updated items
-    listings = listings.query.filter_by(seller=current_user.name).all()
+    listings = Listings.query.filter_by(seller=current_user.name).all()
     flash("The listing has been closed", 'success')
 
     return render_template('listings/mylistings.html', listings=listings)
@@ -110,7 +110,7 @@ def close_listing(listing):
 @listingbp.route('<listing>/watchlist', methods=['GET', 'POST'])
 @login_required
 def add_watchlist(listing):
-    item = listings.query.filter_by(id=listing).first()
+    item = Listings.query.filter_by(id=listing).first()
     watchlist_item = WatchListItem(listing_id=item.id, user_id=current_user.id, date_added=datetime.now())
 
     # Returns true if item is already in the current users watchlist
@@ -131,7 +131,7 @@ def add_watchlist(listing):
 @login_required
 def watchlist():
     watchListItems = WatchListItem.query.filter_by(user_id=current_user.id).all()
-    allListings = listings.query.filter_by(status='Active').all()
+    allListings = Listings.query.filter_by(status='Active').all()
 
     watchlistlistings = []
 
@@ -157,7 +157,7 @@ def remove_watchlist(listing):
     # Re-render page with updated items
 
     watchListItems = WatchListItem.query.filter_by(user_id=current_user.id).all()
-    allListings = listings.query.filter_by(status='Active').all()
+    allListings = Listings.query.filter_by(status='Active').all()
 
     watchlistlistings = []
 
@@ -177,7 +177,7 @@ def remove_watchlist(listing):
 @login_required
 def review(listing):
     form = ReviewForm()
-    listing_obj = listings.query.filter_by(id=listing).first()
+    listing_obj = Listings.query.filter_by(id=listing).first()
 
     if form.validate_on_submit():
         review = Review(title=form.title.data, feedback=form.feedback.data,
@@ -193,7 +193,7 @@ def review(listing):
 @login_required
 def placebid(listing):
     bidform = BidForm()
-    listing_obj = listings.query.filter_by(id=listing).first()
+    listing_obj = Listings.query.filter_by(id=listing).first()
 
     if bidform.validate_on_submit():
         # Write to database
@@ -221,7 +221,7 @@ def placebid(listing):
                     bid.bid_status = 'Outbid'
 
                 # Update total bids
-                update_total_bids = listings.query.filter_by(id=listing).first()
+                update_total_bids = Listings.query.filter_by(id=listing).first()
                 update_total_bids.total_bids += 1
 
                 # Commit bid to db

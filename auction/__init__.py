@@ -52,4 +52,8 @@ def create_app():
     def internal_error(e):
         return render_template('500.html')
 
+    @app.before_first_request
+    def create_tables():
+        db.create_all()
+
     return app

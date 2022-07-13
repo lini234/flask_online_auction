@@ -33,7 +33,7 @@ class ListingForm(FlaskForm):
     ram = SelectField('RAM', choices=[('4GB', '4GB'), ('8GB', '8GB'), ('16GB', '16GB'), ('32GB', '32GB')])
     storage = SelectField('Storage', choices=[('64GB', '64GB'), ('128GB', '128GB'), ('256GB', '256GB'), ('512GB', '512GB'), ('1TB', '1TB')])
     condition = SelectField('Condition', choices=[('Excellent', 'Excellent'), ('Good', 'Good'), ('Minor defects', 'Minor defects'), ('Used', 'Used'), ('New', 'New')])
-    end_date =  DateField('End Date', format='%d/%m/%Y', render_kw={"placeholder": "dd/mm/yyyy"})
+    end_date =  DateField('End Date')
     ALLOWED_FILE = {'png', 'jpg', 'JPG', 'PNG', 'jpeg'}
     image_url = FileField('Image', validators=[
         FileRequired(message='Image can not be empty'), FileAllowed(ALLOWED_FILE, message='Only supports png, jpg, JPG, PNG')])

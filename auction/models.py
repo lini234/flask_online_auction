@@ -12,7 +12,7 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(255), nullable=False)
     reviews = db.relationship('Review', backref = 'user')
 
-class listings(db.Model):
+class Listings(db.Model):
     __tablename__ = 'listings'
     id = db.Column(db.Integer, primary_key = True)
     title = db.Column(db.String(80), nullable = False)
@@ -73,3 +73,5 @@ class Bid(db.Model):
     # Foreign Keys
     bidder_name = db.Column(db.String(100), db.ForeignKey('users.name'))
     listing_id = db.Column(db.Integer, db.ForeignKey('listings.id'))
+
+
